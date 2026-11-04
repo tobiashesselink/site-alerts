@@ -1,0 +1,54 @@
+{
+    "name": "tobiashesselink/site-alerts",
+    "description": "Discord alerts for failed jobs, failing scheduled tasks and errors, plus a queue heartbeat for Healthchecks.io.",
+    "keywords": ["laravel", "statamic", "monitoring", "discord", "healthchecks", "queue", "heartbeat"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Tobias Hesselink"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "guzzlehttp/guzzle": "^7.8",
+        "illuminate/console": "^12.0|^13.0",
+        "illuminate/contracts": "^12.0|^13.0",
+        "illuminate/http": "^12.0|^13.0",
+        "illuminate/queue": "^12.0|^13.0",
+        "illuminate/support": "^12.0|^13.0"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.20",
+        "orchestra/testbench": "^10.0|^11.0",
+        "phpunit/phpunit": "^11.5|^12.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "TobiasHesselink\\SiteAlerts\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "TobiasHesselink\\SiteAlerts\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "TobiasHesselink\\SiteAlerts\\SiteAlertsServiceProvider"
+            ],
+            "aliases": {
+                "SiteAlerts": "TobiasHesselink\\SiteAlerts\\Facades\\SiteAlerts"
+            }
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "lint": "pint --test"
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
+}
