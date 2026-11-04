@@ -81,7 +81,7 @@ class ReportScheduledTasks
         }
 
         $sent = $this->discord->send('Geplande taak mislukt: '.static::name($task), [
-            str($error)->squish()->limit(300)->toString(),
+            str(Discord::redact($error))->squish()->limit(300)->toString(),
             ($output = static::output($task)) ? 'Uitvoer: '.$output : null,
             'Volgende run: '.$task->nextRunDate()->timezone(config('app.timezone'))->format('d-m H:i'),
         ]);
@@ -142,6 +142,6 @@ class ReportScheduledTasks
             ->filter()
             ->take(-5);
 
-        return $lines->isEmpty() ? null : str($lines->implode(' | '))->limit(600)->toString();
+        return $lines->isEmpty() ? null : str(Discord::redact($lines->implode(' | ')))->limit(600)->toString();
     }
 }
