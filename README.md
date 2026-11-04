@@ -18,7 +18,7 @@ Dit package meldt het direct, voor elke site op dezelfde manier en zonder eigen 
 
 - Maximaal 10 Discord-meldingen per 10 minuten per site; daarboven één melding dat de rest in de log staat.
 - Zonder webhook gaat elke melding naar de log, zodat er nooit iets stil verdwijnt.
-- Een melding bevat nooit de payload van een job, de waarden in een SQL-query of tokens uit een URL.
+- Een melding bevat nooit de payload van een job, de waarden in een SQL-query, of querystrings en tokens uit een URL.
 - Een melding kan nooit zelf een fout veroorzaken in de job, taak of request waar hij vandaan komt.
 
 ## Installatie

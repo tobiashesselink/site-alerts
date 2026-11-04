@@ -19,6 +19,19 @@ class DiscordTest extends TestCase
         Http::assertSent(fn (Request $request) => $request['allowed_mentions'] === ['parse' => []]);
     }
 
+    public function test_redacts_query_values_and_tokens(): void
+    {
+        $message = 'Server error: `GET https://www.example.test/agenda?__recache=a1b2c3&page=2` resulted in a `500`';
+
+        $this->assertSame(
+            'Server error: `GET https://www.example.test/agenda?__recache=…&page=…` resulted in a `500`',
+            Discord::redact($message),
+        );
+        $this->assertSame('/wachtwoord/…/bevestig', Discord::redact('/wachtwoord/'.str_repeat('a1', 32).'/bevestig'));
+        $this->assertSame('/agenda/een-heel-lang-evenement-met-een-lange-slug-erbij', Discord::redact('/agenda/een-heel-lang-evenement-met-een-lange-slug-erbij'));
+        $this->assertSame('select * from users where email = ?', Discord::redact('select * from users where email = ?'));
+    }
+
     public function test_invalid_utf8_does_not_break_the_alert(): void
     {
         $this->assertTrue(app(Discord::class)->send('Titel', ["Uitvoer: caf\xC3"]));

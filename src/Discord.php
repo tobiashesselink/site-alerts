@@ -37,7 +37,17 @@ class Discord
             ? $e->getPrevious()?->getMessage().' (SQL: '.$e->getSql().')'
             : $e->getMessage();
 
-        return $e::class.': '.str($message)->squish()->limit(300);
+        return $e::class.': '.str(static::redact($message))->squish()->limit(300);
+    }
+
+    /** Hides values that can be secrets: query string values and long random path segments, such as tokens. */
+    public static function redact(string $text): string
+    {
+        return preg_replace(
+            ['/([?&][^\s=&?#]+=)[^\s&#`\'"]+/', '#/[A-Za-z0-9]{32,}(?=[/?\s`\'"]|$)#'],
+            ['$1…', '/…'],
+            $text,
+        ) ?? $text;
     }
 
     /** Where it was thrown and, if that is in vendor, the line in the site's own code that led to it. */

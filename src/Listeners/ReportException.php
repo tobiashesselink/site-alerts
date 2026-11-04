@@ -30,10 +30,7 @@ class ReportException
 
         $request = $this->app->make('request');
 
-        // Long random segments are tokens, such as in a password reset link.
-        $path = preg_replace('#/[A-Za-z0-9]{32,}(?=/|$)#', '/…', '/'.ltrim($request->path(), '/'));
-
-        $sent = $this->discord->send('Fout bij '.$request->method().' '.$path, [
+        $sent = $this->discord->send('Fout bij '.$request->method().' '.Discord::redact('/'.ltrim($request->path(), '/')), [
             Discord::describe($e),
             $location,
             'Dezelfde fout wordt 24 uur niet opnieuw gemeld',
