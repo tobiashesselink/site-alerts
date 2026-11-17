@@ -10,7 +10,7 @@ use Illuminate\Console\Events\ScheduledTaskStarting;
 use Illuminate\Console\Scheduling\CallbackEvent;
 use Illuminate\Console\Scheduling\Event;
 use Illuminate\Events\Dispatcher;
-use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Str;
 use ReflectionFunction;
 use ReflectionProperty;
@@ -18,7 +18,8 @@ use TobiasHesselink\SiteAlerts\Discord;
 
 /**
  * Alerts on state changes only: once when a task starts failing and once when it succeeds again.
- * Missed runs (cron or server down) are caught by the heartbeat, not here.
+ * Missed runs (cron or server down) are caught by the heartbeat, not here. The state lives in a file in storage,
+ * not in the cache: deploys run cache:clear, and a task that keeps failing would then alert again after every deploy.
  */
 class ReportScheduledTasks
 {
@@ -76,7 +77,9 @@ class ReportScheduledTasks
 
     private function reportFailing(Event $task, string $error): void
     {
-        if (Cache::has(static::key($task))) {
+        $state = static::state($task);
+
+        if (is_file($state)) {
             return;
         }
 
@@ -87,20 +90,24 @@ class ReportScheduledTasks
         ]);
 
         if ($sent) {
-            Cache::forever(static::key($task), true);
+            File::ensureDirectoryExists(dirname($state));
+            File::put($state, static::name($task));
         }
     }
 
     private function reportRecovered(Event $task): void
     {
-        if (Cache::has(static::key($task)) && $this->discord->send('Geplande taak weer gelukt: '.static::name($task))) {
-            Cache::forget(static::key($task));
+        $state = static::state($task);
+
+        if (is_file($state) && $this->discord->send('Geplande taak weer gelukt: '.static::name($task))) {
+            File::delete($state);
         }
     }
 
-    private static function key(Event $task): string
+    /** Exists while the task is failing (and that has been reported). */
+    private static function state(Event $task): string
     {
-        return 'site-alerts:schedule:'.sha1($task->mutexName().'|'.static::name($task));
+        return storage_path('framework/site-alerts/schedule-'.sha1($task->mutexName().'|'.static::name($task)).'.failing');
     }
 
     private static function name(Event $task): string

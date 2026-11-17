@@ -89,8 +89,9 @@ SiteAlerts::send('Betaling niet verwerkt', ['Order 1042', 'Mollie gaf status 500
   Het package meldt pas als Laravel opgeeft.
 - De uitvoer van geplande commands wordt per run opgeslagen in `storage/logs/schedule-*.log`, zodat een
   melding de echte fout toont en niet alleen de exitcode.
-- De status van geplande taken en de 24-uursfilter voor fouten staan in de cache. Na `cache:clear` meldt
-  een taak die nog steeds faalt zich opnieuw.
+- De status van geplande taken staat in `storage/framework/site-alerts`, niet in de cache. Een deploy met
+  `cache:clear` laat een taak die blijft falen dus niet opnieuw melden. De 24-uursfilter voor fouten in
+  webrequests staat wel in de cache.
 - Fouten in queue-jobs en geplande taken komen niet als foutmelding binnen. Die lopen via hun eigen melding.
 
 ## Ontwikkelen
