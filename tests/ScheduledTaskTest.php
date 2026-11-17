@@ -8,6 +8,7 @@ use Illuminate\Console\Events\ScheduledTaskFinished;
 use Illuminate\Console\Events\ScheduledTaskStarting;
 use Illuminate\Console\Scheduling\Event;
 use Illuminate\Console\Scheduling\Schedule;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
 use RuntimeException;
 
@@ -30,6 +31,21 @@ class ScheduledTaskTest extends TestCase
         $this->assertStringContainsString('- Exitcode 1', $messages[0]);
         $this->assertStringContainsString('Volgende run:', $messages[0]);
         $this->assertStringContainsString('Geplande taak weer gelukt: statistiek:ophalen --als-nodig', $messages[1]);
+    }
+
+    public function test_a_cleared_cache_does_not_repeat_the_alert(): void
+    {
+        $task = $this->task();
+
+        event(new ScheduledTaskFailed($task, new RuntimeException('failed')));
+        Cache::flush(); // Deploys run cache:clear.
+        event(new ScheduledTaskFailed($task, new RuntimeException('failed')));
+        $task->exitCode = 0;
+        event(new ScheduledTaskFinished($task, 0.1));
+
+        $messages = $this->discordMessages();
+        $this->assertCount(2, $messages);
+        $this->assertStringContainsString('weer gelukt', $messages[1]);
     }
 
     public function test_a_finished_event_of_a_failed_run_is_not_a_recovery(): void

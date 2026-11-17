@@ -3,6 +3,7 @@
 namespace TobiasHesselink\SiteAlerts\Tests;
 
 use Illuminate\Http\Client\Request;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Http;
 use Orchestra\Testbench\TestCase as Orchestra;
 use TobiasHesselink\SiteAlerts\SiteAlertsServiceProvider;
@@ -16,6 +17,8 @@ abstract class TestCase extends Orchestra
     protected function setUp(): void
     {
         parent::setUp();
+
+        File::deleteDirectory(storage_path('framework/site-alerts'));
 
         Http::preventStrayRequests();
         Http::fake(['discord.test/*' => Http::response(status: 204), 'hc-ping.test/*' => Http::response('OK')]);
